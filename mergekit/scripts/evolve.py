@@ -379,7 +379,7 @@ def _reshard_model(
     )
     try:
         tokenizer = transformers.AutoTokenizer.from_pretrained(
-            model.model.path,
+            'Xenova/gpt-4',
             revision=model.model.revision,
             trust_remote_code=trust_remote_code,
             use_fast=True,

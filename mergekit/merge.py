@@ -224,7 +224,7 @@ def _copy_tokenizer(
     # fallback: try actually loading the tokenizer and saving it
     logging.info(f"Reserializing tokenizer from {donor_model}")
     tokenizer = transformers.AutoTokenizer.from_pretrained(
-        donor_model.model.path,
+        "Xenova/gpt-4",
         revision=donor_model.model.revision,
         trust_remote_code=trust_remote_code,
     )
