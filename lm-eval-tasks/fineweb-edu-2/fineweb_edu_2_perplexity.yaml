@@ -1,0 +1,20 @@
+task: fine_web_edu_2_ppl
+task_alias: fw_edu2_ppl 
+dataset_path: json # Tells HF 'datasets' to treat data as json
+dataset_name: null
+dataset_kwargs:
+  data_files: 
+    test: "data/fineweb_edu_2/test_pages.json"
+
+# We want perplexity => output_type should be `loglikelihood_rolling`.
+output_type: loglikelihood_rolling
+
+doc_to_text: ""
+doc_to_target: "{{text}}"
+
+metric_list:
+  - metric: perplexity
+    # typically perplexity => lower_is_better => no need to override.
+
+metadata:
+  version: 0.1
