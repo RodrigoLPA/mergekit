@@ -26,6 +26,7 @@ dependencies = [
     "protobuf",
     "scipy",
     "datasets",
+    "python-dotenv",
 ]
 
 [project.optional-dependencies]
