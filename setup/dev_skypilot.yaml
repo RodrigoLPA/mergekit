@@ -1,0 +1,18 @@
+name: s29_merging_dev
+
+resources:
+  cloud: kubernetes
+  accelerators: A100-80GB:1
+  disk_size: 150
+  cpus: 2+
+  memory: 80+
+
+workdir: .
+
+setup: |
+  # cp .sky_env .env
+  chmod 755 setup/dev_setup.sh
+  ./setup/dev_setup.sh
+  
+run: |
+
