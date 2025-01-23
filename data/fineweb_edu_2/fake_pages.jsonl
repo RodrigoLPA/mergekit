@@ -1,0 +1,7 @@
+{
+  "test": [
+    {"id": 0, "text": "This is a sample educational text about machine learning. Machine learning is a subset of artificial intelligence that focuses on developing systems that can learn from and make decisions based on data. The field combines computer science, statistics, and mathematics to create algorithms that can improve their performance over time without being explicitly programmed to do so."},
+    {"id": 1, "text": "The history of computing dates back to ancient civilizations. The abacus, invented around 2400 BC, was one of the first devices used for numerical calculations. The modern computer era began in the 1940s with the development of ENIAC, the first general-purpose electronic computer. Since then, computing technology has evolved dramatically, leading to today's powerful and compact devices."},
+    {"id": 2, "text": "Climate change is one of the most pressing challenges facing our planet. Scientists have observed significant changes in global temperature patterns, rising sea levels, and increasing frequency of extreme weather events. Understanding these changes requires analysis of complex data from various sources including satellite observations, weather stations, and historical records."}
+  ]
+}
