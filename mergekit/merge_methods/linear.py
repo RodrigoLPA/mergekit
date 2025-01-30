@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Charles O. Goddard
+# Copyright (C) 2025 Arcee AI
 #
 # This software is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License as
@@ -16,6 +16,7 @@
 from typing import Any, Dict, List, Optional
 
 import torch
+from typing_extensions import override
 
 from mergekit.architecture import WeightInfo
 from mergekit.common import ImmutableMap, ModelReference
@@ -72,6 +73,17 @@ class LinearMergeTask(Task[torch.Tensor]):
 
 
 class LinearMerge(MergeMethod):
+    def name(self) -> str:
+        return "linear"
+
+    @override
+    def pretty_name(self) -> Optional[str]:
+        return "Linear"
+
+    @override
+    def reference_url(self) -> Optional[str]:
+        return "https://arxiv.org/abs/2203.05482"
+
     def parameters(self) -> List[ConfigParameterDef]:
         return [
             ConfigParameterDef(name="normalize", required=False, default_value=True),

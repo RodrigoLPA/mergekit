@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Charles O. Goddard
+# Copyright (C) 2025 Arcee AI
 #
 # This software is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License as
@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import torch
+from typing_extensions import override
 
 from mergekit.architecture import WeightInfo
 from mergekit.common import ImmutableMap, ModelReference
@@ -71,6 +72,17 @@ class SlerpTask(Task[torch.Tensor]):
 
 
 class SlerpMerge(MergeMethod):
+    def name(self) -> str:
+        return "slerp"
+
+    @override
+    def pretty_name(self) -> Optional[str]:
+        return "SLERP"
+
+    @override
+    def reference_url(self):
+        return "https://en.wikipedia.org/wiki/Slerp"
+
     def parameters(self) -> List[ConfigParameterDef]:
         return [ConfigParameterDef(name="t", required=True)]
 

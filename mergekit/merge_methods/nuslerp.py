@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Charles O. Goddard
+# Copyright (C) 2025 Arcee AI
 #
 # This software is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License as
@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional
 
 import torch
 from torch._tensor import Tensor
+from typing_extensions import override
 
 from mergekit.architecture import WeightInfo
 from mergekit.common import ImmutableMap, ModelReference
@@ -96,6 +97,13 @@ class NuSlerpTask(Task[torch.Tensor]):
 
 
 class NuSlerpMerge(MergeMethod):
+    def name(self) -> str:
+        return "nuslerp"
+
+    @override
+    def pretty_name(self):
+        return "NuSLERP"
+
     def parameters(self) -> List[ConfigParameterDef]:
         return [
             ConfigParameterDef(

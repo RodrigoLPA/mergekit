@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Charles O. Goddard
+# Copyright (C) 2025 Arcee AI
 #
 # This software is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License as
@@ -40,6 +40,16 @@ class MergeMethod(ABC):
 
     def parameters(self) -> List[ConfigParameterDef]:
         return []
+
+    @abstractmethod
+    def name(self) -> str:
+        ...
+
+    def pretty_name(self) -> Optional[str]:
+        return None
+
+    def reference_url(self) -> Optional[str]:
+        return None
 
     @abstractmethod
     def make_task(
