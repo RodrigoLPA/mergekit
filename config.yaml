@@ -1,0 +1,17 @@
+
+slices:
+  - sources:
+      - model: RoyJoy/llama-jan08
+        layer_range: [0, 48]
+      - model: RoyJoy/llama-jan16
+        layer_range: [0, 48]
+merge_method: slerp
+base_model: RoyJoy/llama-jan08
+parameters:
+  t:
+    - filter: self_attn
+      value: [0, 0.5, 0.3, 0.7, 1]
+    - filter: mlp
+      value: [1, 0.5, 0.7, 0.3, 0]
+    - value: 0.5
+dtype: bfloat16

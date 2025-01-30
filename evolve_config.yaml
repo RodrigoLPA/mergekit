@@ -1,0 +1,19 @@
+
+genome:
+    models:
+      - model: RoyJoy/llama-jan08
+      - model: RoyJoy/llama-jan16
+    merge_method: slerp
+    base_model: RoyJoy/llama-jan08
+    layer_granularity: 8
+
+tasks:
+  - name: fine_web_edu_2_ppl
+    weight: 1.0
+    metric: "perplexity"
+    config:
+        dataset:
+            path: "json"
+            name: null
+            data_files: "./data/fineweb_edu_2/test_pages.json"
+            split: "test"
