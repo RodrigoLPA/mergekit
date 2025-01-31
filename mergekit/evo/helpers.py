@@ -55,7 +55,18 @@ def _eval_model(
     logging.info(results["results"])
     res = 0
     for task in tasks:
-        res += results["results"][task.name][task.metric] * task.weight
+        try:
+            res += results["results"][task.name][task.metric] * task.weight
+        except KeyError:
+            # Try alternative metric name with "none" suffix
+            alternative_metric = f"{task.metric},none"
+            try:
+                res += results["results"][task.name][alternative_metric] * task.weight
+                logging.warning(f"Used alternative metric '{alternative_metric}' for task {task.name}")
+            except KeyError:
+                logging.error(f"Neither '{task.metric}' nor '{alternative_metric}' found in results for task {task.name}")
+                raise
+
     return {"score": res, "results": results["results"]}
 
 
