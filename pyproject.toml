@@ -27,6 +27,7 @@ dependencies = [
     "scipy",
     "datasets",
     "python-dotenv",
+    "ipywidgets"
 ]
 
 [project.optional-dependencies]
