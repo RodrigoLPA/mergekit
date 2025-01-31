@@ -52,16 +52,6 @@ if ! command_exists htop; then
     sudo apt install -y htop
 fi
 
-# Install Lazygit if not already installed
-if ! command_exists lazygit; then
-    print_status "Installing Lazygit"
-    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-    tar xf lazygit.tar.gz lazygit
-    sudo install lazygit /usr/local/bin
-    rm -f lazygit.tar.gz lazygit
-fi
-
 # Check if Python 3.10 is installed
 if ! command_exists python3.10; then
     print_status "Installing Python 3.10"
