@@ -1,20 +1,19 @@
 task: fine_web_edu_2_ppl
 task_alias: fw_edu2_ppl 
-dataset_path: json # Tells HF 'datasets' to treat data as json
-dataset_name: null
-dataset_kwargs:
-  data_files: 
-    test: "data/fineweb_edu_2/test_pages.json"
-
-# We want perplexity => output_type should be `loglikelihood_rolling`.
+dataset_path: deepcoreCoalbiter/fineweb_edu_2
+dataset_name: default
 output_type: loglikelihood_rolling
-
+training_split: train
+validation_split: validation
+test_split: test
 doc_to_text: ""
-doc_to_target: "{{text}}"
-
+doc_to_target: !function preprocess_dataset.detokenizer
+process_results: !function preprocess_dataset.process_results
+should_decontaminate: true
+doc_to_decontamination_query: "{{page}}"
 metric_list:
-  - metric: perplexity
-    # typically perplexity => lower_is_better => no need to override.
-
+  - metric: word_perplexity
+  - metric: byte_perplexity
+  - metric: bits_per_byte
 metadata:
   version: 0.1

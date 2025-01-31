@@ -560,13 +560,13 @@ def save_pages_to_jsonl(
     random_seed: Optional[int] = None,
 ) -> None:
     """
-    Saves dataset pages to a JSON file compatible with Hugging Face datasets.
-    The output will be a single JSON object containing an array of pages.
+    Saves dataset pages to a JSONL file compatible with Hugging Face datasets.
+    Each line will be a JSON object containing a single page.
 
     Args:
         dataset_name (str): Name of dataset ('Pes2oX', 'StackV1Dedup', 'RefinedWeb', or 'FineWeb Edu 2')
         num_pages (int): Number of pages to fetch
-        output_path (str): Path where to save the JSON file
+        output_path (str): Path where to save the JSONL file
         random_seed (Optional[int]): Random seed for reproducibility
     """
     # Map dataset names to loader classes
@@ -607,19 +607,12 @@ def save_pages_to_jsonl(
         loader.configs_data = loader.fetch_dataset_configs()
         rows = loader.fetch_data_to_rows(num_pages)
         
-        pages = [
-            {
-                "text": text,
-                "page_id": i,
-            } 
-            for i, text in enumerate(rows)
-        ]
+        pages = [{"text": text} for text in rows]
     else:
         # Initialize loader and fetch pages
         loader = MinimalLoader(random_seed=random_seed)
         page_offsets = loader._sample_pages()
         
-        page_id = 0
         for page in page_offsets:
             loader.params["offset"] = page
             loader.params["length"] = loader.num_rows_per_page
@@ -636,8 +629,7 @@ def save_pages_to_jsonl(
                     
                     for row in response.json()["rows"]:
                         text = loader._get_content_from_row(row)
-                        pages.append({"id": page_id, "text": text})
-                        page_id += 1
+                        pages.append({"text": text})
                     break
 
                 except requests.exceptions.RequestException as e:
@@ -649,6 +641,7 @@ def save_pages_to_jsonl(
                         print("Maximum retry limit reached. Unable to fetch data.")
                         raise
 
-    # Write all pages as a single JSON object
+    # Write pages as JSONL, one page per line
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump({"pages": pages}, f, ensure_ascii=False, indent=2)
+        for page in pages:
+            f.write(json.dumps(page, ensure_ascii=False) + '\n')
