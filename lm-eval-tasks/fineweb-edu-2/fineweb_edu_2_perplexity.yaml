@@ -13,7 +13,8 @@ should_decontaminate: true
 doc_to_decontamination_query: "{{page}}"
 metric_list:
   - metric: word_perplexity
-  - metric: byte_perplexity
-  - metric: bits_per_byte
+    aggregation: weighted_perplexity
+    higher_is_better: false
+
 metadata:
   version: 0.1

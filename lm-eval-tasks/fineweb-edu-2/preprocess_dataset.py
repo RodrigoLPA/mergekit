@@ -43,6 +43,6 @@ def process_results(doc, results):
     _bytes = len(doc["text"].encode("utf-8"))
     return {
         "word_perplexity": (loglikelihood, _words),
-        "byte_perplexity": (loglikelihood, _bytes),
-        "bits_per_byte": (loglikelihood, _bytes),
+        # "byte_perplexity": (loglikelihood, _bytes),
+        # "bits_per_byte": (loglikelihood, _bytes),
     }
