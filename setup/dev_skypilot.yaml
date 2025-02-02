@@ -1,11 +1,11 @@
-name: s29_merging_dev
+name: s29_mining
 
 resources:
   cloud: kubernetes
-  accelerators: A100-80GB:1
-  disk_size: 150
-  cpus: 2+
-  memory: 80+
+  accelerators: A100-80GB:6
+  disk_size: 600
+  cpus: 3+
+  memory: 160+
 
 workdir: .
 
