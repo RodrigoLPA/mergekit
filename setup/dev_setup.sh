@@ -65,7 +65,13 @@ source env/bin/activate
 
 # Install package in development mode
 print_status "Installing package in development mode"
-pip install -e .[evolve]
+pip install -e .[evolve, vllm]
+# Reinstall flash-attn to ensure compatibility with vLLM
+print_status "Reinstalling flash-attn"
+pip uninstall -y flash-attn
+pip cache purge
+pip install flash-attn
+
 deactivate
 
 echo "✅ Installation complete!"
