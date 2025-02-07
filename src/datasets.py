@@ -17,6 +17,9 @@ from transformers import (
     LlamaTokenizer,
     LlamaTokenizerFast,
 )
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
 
 load_dotenv()
 
@@ -553,11 +556,41 @@ def prepare_wikitext_batches(
 
     return batches
 
+def _fetch_page_data(loader, page):
+    """Helper function to fetch data for a single page."""
+    loader.params["offset"] = page
+    loader.params["length"] = loader.num_rows_per_page
+
+    attempt = 0
+    while attempt < loader.retry_limit:
+        try:
+            response = requests.get(
+                loader.rows_base_url,
+                params=loader.params,
+                headers=loader._get_request_headers(),
+            )
+            response.raise_for_status()
+            
+            return [
+                {"text": loader._get_content_from_row(row)}
+                for row in response.json()["rows"]
+            ]
+
+        except requests.exceptions.RequestException as e:
+            attempt += 1
+            print(f"Failed to fetch data for page {page}, retrying. Attempt {attempt}/{loader.retry_limit}")
+            if attempt < loader.retry_limit:
+                time.sleep(loader.retry_delay)
+            else:
+                print("Maximum retry limit reached. Unable to fetch data.")
+                raise
+
 def save_pages_to_jsonl(
     dataset_name: str,
     num_pages: int,
     output_path: str,
     random_seed: Optional[int] = None,
+    max_workers: int = 6,
 ) -> None:
     """
     Saves dataset pages to a JSONL file compatible with Hugging Face datasets.
@@ -568,6 +601,7 @@ def save_pages_to_jsonl(
         num_pages (int): Number of pages to fetch
         output_path (str): Path where to save the JSONL file
         random_seed (Optional[int]): Random seed for reproducibility
+        max_workers (int): Maximum number of parallel workers for fetching data
     """
     # Map dataset names to loader classes
     dataset_map = {
@@ -579,6 +613,8 @@ def save_pages_to_jsonl(
 
     if dataset_name not in dataset_map:
         raise ValueError(f"Dataset must be one of: {list(dataset_map.keys())}")
+
+    print(f"Saving {num_pages} pages from {dataset_name} to {output_path}")
 
     # Create a minimal loader instance without tokenizer
     class MinimalLoader(dataset_map[dataset_name]):
@@ -604,44 +640,50 @@ def save_pages_to_jsonl(
     # For FineWeb Edu 2, we can use the existing fetch_data_to_rows method
     if dataset_name == "FineWeb Edu 2":
         loader = MinimalLoader(random_seed=random_seed)
+        print("Fetching dataset configs...")
         loader.configs_data = loader.fetch_dataset_configs()
+        print("Fetching pages...")
         rows = loader.fetch_data_to_rows(num_pages)
-        
         pages = [{"text": text} for text in rows]
     else:
         # Initialize loader and fetch pages
         loader = MinimalLoader(random_seed=random_seed)
         page_offsets = loader._sample_pages()
         
-        for page in page_offsets:
-            loader.params["offset"] = page
-            loader.params["length"] = loader.num_rows_per_page
-
-            attempt = 0
-            while attempt < loader.retry_limit:
-                try:
-                    response = requests.get(
-                        loader.rows_base_url,
-                        params=loader.params,
-                        headers=loader._get_request_headers(),
-                    )
-                    response.raise_for_status()
-                    
-                    for row in response.json()["rows"]:
-                        text = loader._get_content_from_row(row)
-                        pages.append({"text": text})
+        pages = []
+        fetched_pages = 0
+        
+        # Use ThreadPoolExecutor for parallel fetching
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Create progress bar
+            pbar = tqdm(total=num_pages, desc=f"Fetching {dataset_name} pages")
+            
+            # Submit only the number of pages we need
+            future_to_page = {
+                executor.submit(_fetch_page_data, loader, page): page 
+                for page in page_offsets[:num_pages]  # Limit to num_pages
+            }
+            
+            # Collect results as they complete
+            for future in concurrent.futures.as_completed(future_to_page):
+                if fetched_pages >= num_pages:  # Stop if we have enough pages
                     break
-
-                except requests.exceptions.RequestException as e:
-                    attempt += 1
-                    print(f"Failed to fetch data for page {page}, retrying. Attempt {attempt}/{loader.retry_limit}")
-                    if attempt < loader.retry_limit:
-                        time.sleep(loader.retry_delay)
-                    else:
-                        print("Maximum retry limit reached. Unable to fetch data.")
-                        raise
+                    
+                page = future_to_page[future]
+                try:
+                    page_data = future.result()
+                    pages.extend(page_data)
+                    fetched_pages += 1
+                    pbar.update(1)
+                except Exception as e:
+                    print(f"Page {page} generated an exception: {e}")
+            
+            pbar.close()
 
     # Write pages as JSONL, one page per line
+    print(f"Writing {len(pages)} pages to {output_path}...")
     with open(output_path, 'w', encoding='utf-8') as f:
-        for page in pages:
+        for page in tqdm(pages, desc="Writing to file"):
             f.write(json.dumps(page, ensure_ascii=False) + '\n')
+    
+    print("Done!")
